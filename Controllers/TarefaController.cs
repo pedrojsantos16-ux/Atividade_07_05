@@ -65,16 +65,15 @@ namespace Gerenciador.Controllers
             if (clientes == null)
                 return Unauthorized("Não autenticado");
 
-            var id = Request.Cookies["IdCliente"];
-            if (id != null)
-                tarefa.Propietario = int.Parse( id);
+            int id = int.Parse(clientes);
+
+            tarefa.Dono = id;
 
             _context.Tarefas.Add(tarefa);
             _context.SaveChanges();
 
             return Created("", tarefa);
         }
-
         [HttpPut("{id}")]
         public IActionResult AtualizaTarefa(int id, Tarefa tarefa)
 
