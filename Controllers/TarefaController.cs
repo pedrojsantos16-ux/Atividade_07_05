@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Atividade_07_05.Models;
 using Atividade_07_05.Data;
+
 namespace Gerenciador.Controllers
 {
-
     [ApiController]
     [Route("[controller]")]
     public class TarefaController : ControllerBase
     {
-
         private readonly GerenciadorContext _context;
 
         public TarefaController(GerenciadorContext context)
@@ -16,107 +16,135 @@ namespace Gerenciador.Controllers
             _context = context;
         }
 
+        [HttpGet("tarefasCliente")]
+        public IActionResult TarefasCliente()
+        {   
+            var sessaoUsuario = HttpContext.Session.GetString("IdCliente");
 
+            if (sessaoUsuario == null)
+            {
+                return Unauthorized("Faça login antes");
+            }
+
+            int idLogado = int.Parse(sessaoUsuario);
+
+            var resultado = from c in _context.Clientes
+                            join t in _context.Tarefas
+                            on c.Id equals t.Propietario
+
+                            where c.Id == idLogado
+
+                            select new
+                            {
+                                Id = t.Id,
+
+                                Cliente = c.Nome,
+
+                                Email = c.Email,
+
+                                Descricao = t.Descricao,
+
+                                Status = t.Status
+                            };
+
+            return Ok(resultado.ToList());
+        }
 
         [HttpGet("{id}")]
         public IActionResult RetornaTarefa(int id)
         {
-            var clientes = HttpContext.Session.GetString("IdCliente");
+            var sessaoUsuario = HttpContext.Session.GetString("IdCliente");
 
-            if (clientes == null)
+            if (sessaoUsuario == null)
+            {
                 return Unauthorized("Não autenticado");
-            var tarefas = _context.Tarefas.Find(id);
-            if (tarefas == null)
+            }
+
+            var tarefa = _context.Tarefas.Find(id);
+
+            if (tarefa == null)
             {
                 return NotFound("Tarefa não encontrada");
             }
-            return Ok(tarefas);
+
+            return Ok(tarefa);
         }
 
-        [HttpGet("tarefasCliente/{id}")]
-        public IActionResult TarefasCliente(int Id)
-        {
-            var clientes = HttpContext.Session.GetString("IdCliente");
-
-            if (clientes == null)
-                return Unauthorized("Não autenticado");
-            var resultado = from c in _context.Clientes
-                            join t in _context.Tarefas
-                            on c.Id equals t.Propietario
-                            where Id == c.Id
-                            select new
-                            {
-                                Cliente = c.Nome,
-                                c.Email,
-                                c.Senha,
-                                Tarefas = t.Descricao,
-                                t.Status,
-                                t.Propietario
-
-                            };
-            return Ok(resultado.ToList());
-        }
 
         [HttpPost]
-        public IActionResult CadastraTarefa(Tarefa tarefa)
+        public IActionResult CadastraTarefa([FromBody] Tarefa tarefa)
         {
-            var clientes = HttpContext.Session.GetString("IdCliente");
+            var sessaoUsuario = HttpContext.Session.GetString("IdCliente");
 
-            if (clientes == null)
+            if (sessaoUsuario == null)
+            {
                 return Unauthorized("Não autenticado");
+            }
 
-            int id = int.Parse(clientes);
-
-            tarefa.Dono = id;
+            tarefa.Propietario = int.Parse(sessaoUsuario);
 
             _context.Tarefas.Add(tarefa);
+
             _context.SaveChanges();
 
-            return Created("", tarefa);
+            return Ok(tarefa);
         }
+
         [HttpPut("{id}")]
-        public IActionResult AtualizaTarefa(int id, Tarefa tarefa)
-
+        public IActionResult AtualizaTarefa(int id, [FromBody] Tarefa tarefa)
         {
+            var sessaoUsuario = HttpContext.Session.GetString("IdCliente");
 
-            var clientes = HttpContext.Session.GetString("IdCliente");
-            if (clientes == null)
+            if (sessaoUsuario == null)
             {
-                return Unauthorized("Não autenticado no sistem!");
-
+                return Unauthorized("Não autenticado");
             }
 
             var tarefaDoBanco = _context.Tarefas.Find(id);
+
             if (tarefaDoBanco == null)
             {
-                return NotFound("Tarefa não existe no banco!");
+                return NotFound("Tarefa não encontrada");
             }
+
             tarefaDoBanco.Descricao = tarefa.Descricao;
+
             tarefaDoBanco.Status = tarefa.Status;
 
             _context.SaveChanges();
-            return Ok("Atualizado");
+
+            return Ok("Tarefa atualizada");
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeletaTarefa(int id)
+        public IActionResult DeletarTarefa(int id)
         {
+            var sessaoUsuario = HttpContext.Session.GetString("IdCliente");
 
-            var clientes = HttpContext.Session.GetString("IdCliente");
-            if (clientes == null)
+            if (sessaoUsuario == null)
             {
-                return Unauthorized("Não autenticado no sistem!");
-
+                return Unauthorized("Não autenticado");
             }
 
-            var tarefaDoBanco = _context.Tarefas.Find(id);
-            if (tarefaDoBanco == null)
+            var tarefa = _context.Tarefas.Find(id);
+
+            if (tarefa == null)
             {
-                return NotFound("Não encontrado!");
+                return NotFound("Tarefa não encontrada");
             }
-            _context.Remove(tarefaDoBanco);
+
+            _context.Tarefas.Remove(tarefa);
+
             _context.SaveChanges();
-            return Ok("Deletado");
+
+            return Ok("Tarefa deletada");
+        }
+
+
+        [HttpGet]
+        public IActionResult Listar()
+        {
+            return Ok(_context.Tarefas.ToList());
         }
     }
 }

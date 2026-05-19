@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Atividade_07_05.Data;
 using Atividade_07_05.Models;
+using Microsoft.AspNetCore.DataProtection;
 namespace Gerencia.Controllers
 {
     [ApiController]
@@ -38,7 +39,7 @@ namespace Gerencia.Controllers
         [HttpPut("{id}")]
         public IActionResult AtualizaCliente(Cliente cliente)
         {
-            var clienteDoBanco = _context.Clientes.Find("IdCliente");
+            var clienteDoBanco = _context.Clientes.Find(cliente.Id);
             if (clienteDoBanco == null)
             {
                 return NotFound("Cliente não existe no banco!");
@@ -65,24 +66,29 @@ namespace Gerencia.Controllers
 
 
         [HttpPost("login")]
-        public IActionResult Login(Cliente cliente)
+        public IActionResult Login([FromBody] LoginDTO login)
         {
-            var clientes = _context.Clientes
-                 .Where(c => c.Email.Equals(cliente.Email) &&
-              c.Senha.Equals(cliente.Senha)).ToList();
-            if (!clientes.Any())
-            {
-                return Unauthorized("Usuário ou senha Inválidos!");
-            }
-            HttpContext.Session.SetString("IdCliente", Convert.ToString(clientes[0].Id));
-            Response.Cookies.Append("IdCliente", Convert.ToString(clientes[0].Id));
-            new CookieOptions
-            {
-                Expires = DateTime.Now.AddMinutes(10),
-                HttpOnly = true
-            };
-            return Ok("login realizado com sucesso");
+            var cliente = _context.Clientes
+                .FirstOrDefault(c =>
+                    c.Email == login.Email &&
+                    c.Senha == login.Senha);
 
+            if (cliente == null)
+            {
+                return Unauthorized("Usuário inválido");
+            }
+
+            HttpContext.Session.SetString(
+                "IdCliente",
+                cliente.Id.ToString()
+            );
+
+            return Ok(new
+            {
+                id = cliente.Id,
+                nome = cliente.Nome,
+                email = cliente.Email
+            });
         }
     }
 }
