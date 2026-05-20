@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Tarefas - LISTA</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>CADASTRAR OU EDITAR TAREFA</h1>
+
+        <form id="tarefaForm">
+
+            <select id="status">
+
+                <option value="Pendente">Pendente</option>
+
+                <option value="Em andamento">Em andamento</option>
+
+                <option value="Concluído">Concluído</option>
+
+            </select>
+
+            <textarea
+                id="descricao"
+                placeholder="Descrição da tarefa"
+            ></textarea>
+
+            <button type="submit">
+                Salvar Tarefa
+            </button>
+
+        </form>
+
+        <div id="listaTarefas"></div>
+
+    </div>
+
+    <script src="/javascript/tarefa.js"></script>
+
+</body>
+
+</html>

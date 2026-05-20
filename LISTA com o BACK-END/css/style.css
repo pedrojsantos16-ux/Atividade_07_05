@@ -1,0 +1,100 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body{
+    background: #f4f6f9;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container{
+    background: white;
+    padding: 40px;
+    width: 350px;
+    border-radius: 12px;
+    box-shadow: 0px 0px 15px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+h1{
+    margin-bottom: 20px;
+    color: #333;
+}
+
+p{
+    margin-bottom: 20px;
+    color: #666;
+}
+
+input,
+select,
+textarea{
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+}
+
+textarea{
+    height: 100px;
+    resize: none;
+}
+
+button{
+    width: 100%;
+    padding: 12px;
+    border: none;
+    background: #007bff;
+    color: white;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover{
+    background: #0056b3;
+}
+
+.buttons{
+    display: flex;
+    gap: 10px;
+}
+
+.buttons a{
+    width: 100%;
+}
+
+.link{
+    margin-top: 15px;
+}
+
+.link a{
+    color: #007bff;
+    text-decoration: none;
+}
+
+.tarefa{
+    background: #f1f1f1;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 10px;
+    text-align: left;
+}
+.acoes{
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.acoes button{
+    flex: 1;
+}
